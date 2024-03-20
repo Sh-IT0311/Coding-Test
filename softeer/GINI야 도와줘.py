@@ -1,65 +1,55 @@
 import sys
+input = sys.stdin.readline
 from collections import deque
 
-input = sys.stdin.readline
-
 R, C = map(int, input().split())
-_map = list()
-for _ in range(R):
-    _map.append(list(input().rstrip()))
+matrix = list()
+rains = set()
+for i in range(R):
+    matrix.append(list(input().strip()))
+    for j in range(C):
+        if matrix[i][j] == 'H':
+            ex, ey = i, j
+    
+        elif matrix[i][j] == 'W':
+            sx, sy = i, j
 
-def solution(_map):
-    time_flag = 1
-    rains = deque()
-    for i in range(R):
-        for j in range(C):
-            if _map[i][j] == 'W':
-                sx, sy = i, j
+        elif matrix[i][j] == '*':
+            rains.add((i, j))
 
-            elif _map[i][j] == 'H':
-                ex, ey = i, j
-            
-            elif _map[i][j] == '*':
-                rains.append((i,j))
+if matrix[sx][sy] == 'H':
+    print(0)
+    exit()
+
+dx = (0, 1, 0, -1)
+dy = (1, 0, -1, 0)
+
+q = deque([(sx, sy)])
+time = 0
+checked_rain = {'H', 'X'}
+checked_car = {'W', '*', 'X'}
+while True:
+    time += 1
+    temp = set()
+    for rx, ry in rains:
+        for k in range(4):
+            rnx = rx + dx[k]
+            rny = ry + dy[k]
     
-    dx = (0,1,0,-1)
-    dy = (1,0,-1,0)
-    conditions = {'X', '*'}
-    rconditions = {'X','*', 'H'}
+            if rnx < 0 or rny < 0 or rnx >= R or rny >= C:
+                continue
+
+            if matrix[rnx][rny] in checked_rain:
+                continue
+
+            matrix[rnx][rny] = '*'
+            temp.add((rnx, rny))
+
+    rains.update(temp)
     
-    INF = 3001
-    times = [[INF] * C for _ in range(R)]
-    times[sx][sy] = 0
-    
-    q = deque([(0, sx, sy)])
+    next_queue = deque()
     while q:
-        time, x, y = q.popleft()
-
-        if time_flag == time:
-            time_flag += 1
-            temp = deque()
-
-            while rains:
-                rx, ry = rains.popleft()
-
-                for k in range(4):
-                    rnx = rx + dx[k]
-                    rny = ry + dy[k]
-
-                    if rnx < 0 or rny < 0 or rnx >= R or rny >= C:
-                        continue
-                    
-                    if _map[rnx][rny] not in rconditions:
-                        temp.append((rnx, rny))
-                        _map[rnx][rny] = '*'
-            
-            rains = temp
-
-        if x == ex and y == ey:
-            return times[ex][ey]
-
-        if _map[x][y] == '*':
-            continue
+        x, y = q.popleft()
 
         for k in range(4):
             nx = x + dx[k]
@@ -68,12 +58,17 @@ def solution(_map):
             if nx < 0 or ny < 0 or nx >= R or ny >= C:
                 continue
 
-            if _map[nx][ny] not in conditions:
-                cost = time + 1
-                if cost < times[nx][ny]:
-                    times[nx][ny] = cost
-                    q.append((cost,nx,ny))
+            if matrix[nx][ny] in checked_car:
+                continue
 
-    return 'FAIL'
+            if matrix[nx][ny] == 'H':
+                print(time)
+                exit()
+                
+            matrix[nx][ny] = 'W'
+            next_queue.append((nx, ny))
 
-print(solution(_map))
+    q = next_queue
+    if len(q) == 0:
+        print('FAIL')
+        exit()
