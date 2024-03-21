@@ -1,48 +1,33 @@
 import sys
-from bisect import bisect_left
 input = sys.stdin.readline
+from bisect import bisect_left
 
-n = int(input())
-arr = list(map(int, input().split()))
-answer = 1
+N = int(input())
+A = list(map(int, input().split()))
 
-lcnt = [1]
-lflag = [True]
+def make_history(arr):
+    sequence = [arr[0]]
+    history = [(arr[0], 1)]
+    for i in range(1, N):
+        if sequence[-1] < arr[i]:
+            sequence.append(arr[i])
+    
+        else:
+            sequence[bisect_left(sequence, arr[i])] = arr[i]
+        
+        history.append((sequence[-1], len(sequence)))
+    return history
 
-lis = [arr[0]]
-j = 0
+current_history = make_history(A)
+A.reverse()
+reverse_history = make_history(A)
+reverse_history.reverse()
 
-i = 1
-while i < n:
-    flag = False
-    if lis[j] < arr[i]:
-        lis.append(arr[i])
-        j += 1
-        flag = True
+result = 1
+for i in range(N-1):
+    _prev = current_history[i]
+    _next = reverse_history[i+1]
 
-    else:
-        lis[bisect_left(lis, arr[i])] = arr[i]
-
-    lcnt.append(j+1)
-    lflag.append(flag)
-    i += 1
-
-
-lis = [arr[n-1]]
-j = 0
-
-i = n-2
-while i >= 0:
-    flag = False
-    if lis[j] < arr[i]:
-        lis.append(arr[i])
-        j += 1
-        flag = True
-
-    else:
-        lis[bisect_left(lis, arr[i])] = arr[i]
-
-    answer = max(answer, lcnt[i] + j + 1 - int(lflag[i] and flag))
-    i -= 1
-
-print(answer)
+    if _prev[0] > _next[0]:
+        result = max(result, _prev[1] + _next[1])
+print(result)
