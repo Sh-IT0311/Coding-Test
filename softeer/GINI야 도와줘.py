@@ -1,10 +1,9 @@
 import sys
 input = sys.stdin.readline
-from collections import deque
 
 R, C = map(int, input().split())
 matrix = list()
-rains = set()
+rains = list()
 for i in range(R):
     matrix.append(list(input().strip()))
     for j in range(C):
@@ -15,7 +14,7 @@ for i in range(R):
             sx, sy = i, j
 
         elif matrix[i][j] == '*':
-            rains.add((i, j))
+            rains.append((i, j))
 
 if matrix[sx][sy] == 'H':
     print(0)
@@ -24,14 +23,15 @@ if matrix[sx][sy] == 'H':
 dx = (0, 1, 0, -1)
 dy = (1, 0, -1, 0)
 
-q = deque([(sx, sy)])
+q = [(sx, sy)]
+rq = rains
 time = 0
-checked_rain = {'H', 'X'}
+checked_rain = {'H', 'X', '*'}
 checked_car = {'W', '*', 'X'}
 while True:
     time += 1
-    temp = set()
-    for rx, ry in rains:
+    rtemp = list()
+    for rx, ry in rq:
         for k in range(4):
             rnx = rx + dx[k]
             rny = ry + dy[k]
@@ -43,13 +43,11 @@ while True:
                 continue
 
             matrix[rnx][rny] = '*'
-            temp.add((rnx, rny))
-
-    rains.update(temp)
+            rtemp.append((rnx, rny))
+    rq = rtemp
     
-    next_queue = deque()
-    while q:
-        x, y = q.popleft()
+    temp = list()
+    for x, y in q:
 
         for k in range(4):
             nx = x + dx[k]
@@ -66,9 +64,9 @@ while True:
                 exit()
                 
             matrix[nx][ny] = 'W'
-            next_queue.append((nx, ny))
+            temp.append((nx, ny))
 
-    q = next_queue
+    q = temp
     if len(q) == 0:
         print('FAIL')
         exit()
