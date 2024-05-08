@@ -3,22 +3,22 @@ input = sys.stdin.readline
 
 n, m = map(int, input().split())
 matrix = list()
-ghosts = list()
+gq = list()
+q = list()
 for i in range(n):
     matrix.append(list(input().strip()))
     for j in range(m):
         if matrix[i][j] == 'D':
             ex, ey = i, j
         elif matrix[i][j] == 'N':
-            sx, sy = i, j
+            q.append((i, j))
         elif matrix[i][j] == 'G':
-            ghosts.append((i, j))
+            gq.append((i, j))
 
 dx = (0, 1, 0, -1)
 dy = (1, 0, -1, 0)
 checked = {'G', '#', 'N'}
-q = [(sx, sy)]
-gq = ghosts
+
 while q:
     if matrix[ex][ey] == 'N':
         print('Yes')
